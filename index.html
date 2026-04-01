@@ -1,291 +1,507 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>Simple Payment</title>
-    <link href="" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>DANZ OFC - Streaming Film</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
-            background: url('https://i.ibb.co/7dFC74r2/Buat-kan-Saya-animasi-cowok-emo-sedang-dulu-di-baju-nya-buat-kan-logo-blac-20250704-215830-0000.jpg') no-repeat center center fixed;
-            background-size: cover;
-            color: white;
-            text-align: center;
-            overflow-x: hidden;
-            padding: 50px 20px;
-            position: relative;
+            background: #0a0a0a;
+            color: #fff;
         }
 
-        canvas#particles,
-        canvas#snow {
-            position: fixed;
+        /* LANGSUNG MUNCUL - NO LOADING SCREEN */
+        .header {
+            background: #000;
+            padding: 12px 16px;
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            pointer-events: none;
+            z-index: 100;
+            border-bottom: 1px solid #222;
         }
 
-        .shine {
-            position: absolute;
-            top: -100%;
-            left: -100%;
-            width: 300%;
-            height: 300%;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
-            transform: rotate(45deg);
-            animation: shine 4s infinite linear;
-            z-index: 0;
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        @keyframes shine {
-            0% {
-                transform: translate(-100%, -100%) rotate(45deg);
-            }
-
-            100% {
-                transform: translate(100%, 100%) rotate(45deg);
-            }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #e50914, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
         }
 
-        #main-content {
-            display: none;
+        .search-box {
+            display: flex;
+            gap: 8px;
+            background: #1a1a1a;
+            padding: 4px 12px;
+            border-radius: 30px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            padding: 8px;
+            width: 180px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-box button {
+            background: #e50914;
+            border: none;
             color: white;
-            font-family: 'Poppins', sans-serif;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            padding: 6px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
         }
 
-        .welcome-message {
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: #1a1a1a;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .tab-btn.active {
+            background: #e50914;
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .movie-card {
+            background: #111;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 1px solid #222;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-4px);
+            border-color: #e50914;
+        }
+
+        /* POSTER DENGAN GRADIENT WARNA - INSTANT! */
+        .movie-poster {
+            width: 100%;
+            aspect-ratio: 2/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 56px;
+            background: linear-gradient(135deg, #1a1a2a, #0a0a1a);
+        }
+
+        /* Warna berbeda tiap film biar variatif */
+        .movie-card:nth-child(1) .movie-poster { background: linear-gradient(135deg, #2a1a2a, #1a0a2a); }
+        .movie-card:nth-child(2) .movie-poster { background: linear-gradient(135deg, #1a2a2a, #0a1a1a); }
+        .movie-card:nth-child(3) .movie-poster { background: linear-gradient(135deg, #2a2a1a, #1a1a0a); }
+        .movie-card:nth-child(4) .movie-poster { background: linear-gradient(135deg, #1a2a3a, #0a1a2a); }
+        .movie-card:nth-child(5) .movie-poster { background: linear-gradient(135deg, #2a1a3a, #1a0a2a); }
+
+        .movie-info {
+            padding: 10px;
+        }
+
+        .movie-title {
+            font-weight: bold;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-year {
+            color: #888;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .movie-rating {
+            color: #ffc107;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        /* MODAL PLAYER */
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            display: flex;
-            flex-direction: column;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
             justify-content: center;
             align-items: center;
-            opacity: 0;
-            animation: fadeIn 2s forwards;
-            z-index: 9999;
         }
 
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
+        .modal.active {
+            display: flex;
         }
 
-        h1 {
-            font-size: 3em;
-            margin-bottom: 0.2em;
-            animation: fadeInDown 1s ease-in-out;
+        .modal-content {
+            width: 95%;
+            max-width: 900px;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e50914;
         }
 
-        p {
-            font-size: 1.2em;
-            color: #cbd5e1;
-            animation: fadeInUp 1s ease-in-out;
+        .modal-header {
+            padding: 12px 16px;
+            background: #111;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .collapsible-container {
-            max-width: 500px;
-            margin: 30px auto;
-            background-color: rgba(30, 41, 59, 0.8);
-            border-radius: 15px;
-            padding: 20px;
+        .modal-header h3 {
+            color: #e50914;
+            font-size: 16px;
         }
 
-        .collapsible {
-            background: linear-gradient(135deg, #5b247a, #1bcedf);
+        .close-modal {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .close-modal:hover {
+            background: #e50914;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .movie-detail {
+            padding: 12px;
+            background: #111;
+        }
+
+        .movie-detail p {
+            color: #ccc;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .alt-sources {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .alt-btn {
+            background: #222;
+            border: 1px solid #e50914;
+            padding: 5px 12px;
+            border-radius: 20px;
             color: #fff;
             cursor: pointer;
-            padding: 14px 20px;
-            width: 100%;
-            font-size: 1.1em;
-            border-radius: 12px;
-            margin-top: 10px;
-            text-align: left;
-            position: relative;
-            border: none;
-            transition: background 0.3s ease;
+            font-size: 11px;
         }
 
-        .collapsible::after {
-            content: '▼';
-            position: absolute;
-            right: 20px;
-            transition: transform 0.3s ease;
+        .alt-btn:hover {
+            background: #e50914;
         }
 
-        .collapsible.active::after {
-            transform: rotate(-180deg);
+        .footer {
+            text-align: center;
+            padding: 16px;
+            border-top: 1px solid #222;
+            color: #666;
+            font-size: 11px;
         }
 
-        .content {
-            max-height: 0;
-            overflow: hidden;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(8px);
-            border-radius: 0 0 12px 12px;
-            transition: max-height 0.4s ease, padding 0.3s ease;
-            padding: 0 20px;
-            margin-top: 5px;
-            color: #e0e0e0;
-            font-size: 0.95em;
-            border-left: 2px solid rgba(255, 255, 255, 0.15);
-            border-right: 2px solid rgba(255, 255, 255, 0.15);
-            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .content.open {
-            padding: 15px 20px;
-            max-height: 300px;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 40px;
-            gap: 12px;
-        }
-
-        .btn-link,
-        .btn-links {
-            padding: 14px 24px;
-            background: linear-gradient(45deg, #9073fa, #574596, #1fd1f9, #271e4a);
-            background-size: 200% 200%;
-            animation: gradientBtn 4s ease infinite;
-            color: #fff;
-            font-weight: 600;
-            border-radius: 12px;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-
-        .btn-pay {
-            padding: 14px 24px;
-            background: linear-gradient(45deg, #9073fa, #574596, #1fd1f9, #271e4a);
-            background-size: 200% 200%;
-            animation: gradientBtn 4s ease infinite;
-            color: #fff;
-            font-weight: 600;
-            border-radius: 12px;
-            text-decoration: none;
-            transition: 0.3s;
-            margin-top: 20px;
-        }
-
-        .btn-link:hover,
-        .btn-links:hover {
-            transform: scale(1.08);
-        }
-
-        @keyframes fadeInDown {
-            0% {
-                opacity: 0;
-                transform: translateY(-30px);
+        @media (max-width: 500px) {
+            .movie-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
             }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0);
+            .search-box input {
+                width: 120px;
             }
-        }
-
-        @keyframes fadeInUp {
-            0% {
-                opacity: 0;
-                transform: translateY(30px);
+            .tab-btn {
+                padding: 5px 12px;
+                font-size: 11px;
             }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes gradientBtn {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
+            .movie-poster {
+                font-size: 42px;
             }
         }
     </style>
 </head>
-
 <body>
-    <audio controls autoplay loop style="display: none;">
-        <source src="https://yelping-peach-ww6kc6fcmu.edgeone.app/BLACK%20HUNTER%20DISINI.mp3" 
-          type="audio/mp3">
-    </audio>
-    <div class="shine"></div>
-    <div id="welcome-message" class="welcome-message">
-        <h1>HAI MAS/MBAK SALAM KENAL SAYA DANZ MARKET</h1>
-        <p>Selamat Datang Di Website Payment.</p>
-        <button id="go-to-payment" class="btn-pay">Payment</button>
-    </div>
-    <div id="main-content">
-        <h1>Payment List</h1>
-        <p>Silakan Pilih Metode Pembayaran Di Bawah</p>
-        
-        <div class="collapsible-container">
-            <button class="collapsible">DANA</button>
-            <div class="content">
-                <p><strong>DANA:</strong> 083194058051</p>
-                <p><strong>ATAS NAMA:</strong> NURHAYATI MANDASARI</p>
-            </div>
-            <button class="collapsible">GOPAY</button>
-            <div class="content">
-                <p><strong>GOPAY:</strong> TIDAK ADA BG</p>
-                <p><strong>ATAS NAMA:</strong> TIDAK ADA BG</p>
+    <!-- LANGSUNG MUNCUL, GA PAKE LOADING SCREEN! -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo" onclick="location.reload()">🎬 DANZ<span style="color:#fff;">OFC</span></div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Cari film..." autocomplete="off">
+                <button onclick="searchMovies()">Cari</button>
             </div>
         </div>
-        <div class="btn-group">
-            <a href="https://wa.me/083194058051" class="btn-link" target="_blank">WhatsApp</a>
-            <a href="https://instagram.com/izz_zidan" class="btn-link" target="_blank">Instagram</a>
-            <a href="index.html" class="btn-link">Kembali</a>
-        </div>
     </div>
-    <script>
-        document.getElementById('go-to-payment').addEventListener('click', function () {
-            document.getElementById('welcome-message').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-        });
 
-        const collapsibles = document.querySelectorAll('.collapsible');
-        collapsibles.forEach((btn) => {
-            btn.addEventListener('click', () => {
-                btn.classList.toggle('active');
-                const content = btn.nextElementSibling;
-                content.classList.toggle('open');
-            });
+    <div class="container">
+        <div class="category-tabs" id="categoryTabs"></div>
+        <div class="movie-grid" id="movieGrid"></div>
+    </div>
+
+    <div class="footer">
+        <p>🎬 DANZ OFC - Streaming Film | Klik film & pilih sumber player</p>
+        <p>⚡ 100% INSTANT LOAD - Tanpa loading screen!</p>
+    </div>
+
+    <div id="movieModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Judul Film</h3>
+                <button class="close-modal" onclick="closeModal()">×</button>
+            </div>
+            <div class="video-container">
+                <iframe id="movieIframe" src="" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div class="movie-detail">
+                <p id="modalSynopsis"></p>
+                <div class="alt-sources" id="altSources"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DATABASE FILM (TANPA GAMBAR EKSTERNAL) ====================
+        const movies = {
+            popular: [
+                { id: 693134, title: "Dune: Part Two", year: 2024, rating: 8.7, icon: "🏜️", embed: "https://vidsrc.me/embed/movie/693134", synopsis: "Paul Atreides bersatu dengan Fremen untuk membalas dendam pada para konspirator yang menghancurkan keluarganya." },
+                { id: 872585, title: "Oppenheimer", year: 2023, rating: 8.5, icon: "💣", embed: "https://vidsrc.me/embed/movie/872585", synopsis: "Kisah J. Robert Oppenheimer, fisikawan yang memimpin Proyek Manhattan untuk mengembangkan bom atom pertama." },
+                { id: 569094, title: "Spider-Verse", year: 2023, rating: 8.6, icon: "🕷️", embed: "https://vidsrc.me/embed/movie/569094", synopsis: "Miles Morales bertualang melintasi multiverse bersama Gwen Stacy dan tim Spider-People baru." }
+            ],
+            action: [
+                { id: 575264, title: "Mission: Impossible 7", year: 2023, rating: 8.1, icon: "🎬", embed: "https://vidsrc.me/embed/movie/575264", synopsis: "Ethan Hunt dan timnya menghadapi musuh terbaru yang disebut Entity, AI yang mematikan." },
+                { id: 385687, title: "Fast X", year: 2023, rating: 7.2, icon: "🏎️", embed: "https://vidsrc.me/embed/movie/385687", synopsis: "Dom Toretto dan keluarga menghadapi Dante Reyes, anak dari penjahat yang pernah mereka kalahkan." },
+                { id: 603692, title: "John Wick 4", year: 2023, rating: 8.3, icon: "🔫", embed: "https://vidsrc.me/embed/movie/603692", synopsis: "John Wick menemukan jalan untuk mengalahkan High Table dengan harga yang sangat mahal." }
+            ],
+            comedy: [
+                { id: 346698, title: "Barbie", year: 2023, rating: 7.8, icon: "🎀", embed: "https://vidsrc.me/embed/movie/346698", synopsis: "Barbie dan Ken berpetualang di dunia nyata setelah dikeluarkan dari Barbieland." },
+                { id: 502356, title: "Super Mario Bros", year: 2023, rating: 7.4, icon: "🍄", embed: "https://vidsrc.me/embed/movie/502356", synopsis: "Mario dan Luigi berpetualang di dunia Mushroom Kingdom untuk menyelamatkan Princess Peach." }
+            ],
+            horror: [
+                { id: 893723, title: "The Nun II", year: 2023, rating: 6.5, icon: "😈", embed: "https://vidsrc.me/embed/movie/893723", synopsis: "Suster Irene kembali menghadapi Valak, iblis dalam wujud biarawati, di Prancis." },
+                { id: 1003579, title: "FNAF", year: 2023, rating: 6.9, icon: "🐻", embed: "https://vidsrc.me/embed/movie/1003579", synopsis: "Penjaga keamanan di restoran Freddy Fazbear's Pizza menghadapi animatronik yang hidup di malam hari." }
+            ],
+            scifi: [
+                { id: 157336, title: "Interstellar", year: 2014, rating: 8.6, icon: "🌌", embed: "https://vidsrc.me/embed/movie/157336", synopsis: "Perjalanan luar angkasa mencari planet baru untuk kelangsungan hidup manusia." },
+                { id: 335984, title: "Blade Runner 2049", year: 2017, rating: 8.0, icon: "🤖", embed: "https://vidsrc.me/embed/movie/335984", synopsis: "Pencarian replicant yang hilang mengungkap rahasia besar tentang masa lalu." },
+                { id: 299534, title: "Avengers Endgame", year: 2019, rating: 8.4, icon: "🦸", embed: "https://vidsrc.me/embed/movie/299534", synopsis: "Para Avengers berusaha membalikkan peristiwa Infinity War dan mengalahkan Thanos." }
+            ],
+            drama: [
+                { id: 475557, title: "Joker", year: 2019, rating: 8.5, icon: "🎭", embed: "https://vidsrc.me/embed/movie/475557", synopsis: "Arthur Fleck, seorang komedian gagal, berubah menjadi ikon kekacauan di Gotham City." },
+                { id: 496243, title: "Parasite", year: 2019, rating: 8.6, icon: "🏠", embed: "https://vidsrc.me/embed/movie/496243", synopsis: "Kisah keluarga miskin yang menyusup ke rumah kaya dengan cara yang licik." }
+            ],
+            indonesia: [
+                { id: 790001, title: "KKN di Desa Penari", year: 2022, rating: 7.2, icon: "🌾", embed: "https://vidsrc.me/embed/movie/790001", synopsis: "Mahasiswa KKN mengalami kejadian mistis di desa terpencil yang mengubah hidup mereka." },
+                { id: 828764, title: "Pengabdi Setan 2", year: 2022, rating: 7.5, icon: "🏚️", embed: "https://vidsrc.me/embed/movie/828764", synopsis: "Rini dan keluarganya pindah ke rumah susah yang angker setelah kejadian di masa lalu." }
+            ],
+            anime: [
+                { id: 385128, title: "Suzume", year: 2022, rating: 8.2, icon: "🚪", embed: "https://vidsrc.me/embed/movie/385128", synopsis: "Suzume berpetualang menutup pintu-pintu yang membawa bencana di seluruh Jepang." },
+                { id: 99861, title: "Your Name", year: 2016, rating: 8.9, icon: "⭐", embed: "https://vidsrc.me/embed/movie/99861", synopsis: "Dua remaja yang terhubung secara misterius melalui mimpi dan takdir." },
+                { id: 920, title: "Spirited Away", year: 2001, rating: 8.6, icon: "🐉", embed: "https://vidsrc.me/embed/movie/920", synopsis: "Chihiro terperangkap di dunia roh dan harus bekerja di pemandian uap untuk menyelamatkan orang tuanya." }
+            ]
+        };
+
+        const categories = [
+            { key: "popular", name: "🔥 POPULER" },
+            { key: "action", name: "⚡ ACTION" },
+            { key: "comedy", name: "😂 KOMEDI" },
+            { key: "horror", name: "😱 HOROR" },
+            { key: "scifi", name: "🚀 SCI-FI" },
+            { key: "drama", name: "🎭 DRAMA" },
+            { key: "indonesia", name: "🇮🇩 INDONESIA" },
+            { key: "anime", name: "🎌 ANIME" }
+        ];
+
+        let currentCategory = "popular";
+        let currentMovie = null;
+
+        // RENDER KATEGORI
+        function renderCategories() {
+            const container = document.getElementById("categoryTabs");
+            container.innerHTML = categories.map(cat => `
+                <button class="tab-btn ${cat.key === currentCategory ? 'active' : ''}" onclick="switchCategory('${cat.key}')">${cat.name}</button>
+            `).join("");
+        }
+
+        // RENDER FILM LANGSUNG
+        function renderMovies(category) {
+            const grid = document.getElementById("movieGrid");
+            const movieList = movies[category] || movies.popular;
+            
+            grid.innerHTML = movieList.map((movie, index) => `
+                <div class="movie-card" onclick="playMovie(${movie.id}, '${movie.title.replace(/'/g, "\\'")}', '${movie.synopsis.replace(/'/g, "\\'")}')">
+                    <div class="movie-poster">${movie.icon}</div>
+                    <div class="movie-info">
+                        <div class="movie-title">${movie.title}</div>
+                        <div class="movie-year">${movie.year}</div>
+                        <div class="movie-rating">⭐ ${movie.rating}/10</div>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function switchCategory(category) {
+            currentCategory = category;
+            renderCategories();
+            renderMovies(category);
+        }
+
+        // PENCARIAN
+        function searchMovies() {
+            const query = document.getElementById("searchInput").value.toLowerCase().trim();
+            if (!query) {
+                renderMovies(currentCategory);
+                return;
+            }
+
+            const allMovies = [
+                ...movies.popular, ...movies.action, ...movies.comedy,
+                ...movies.horror, ...movies.scifi, ...movies.drama,
+                ...movies.indonesia, ...movies.anime
+            ];
+            const results = allMovies.filter(m => m.title.toLowerCase().includes(query));
+            
+            const grid = document.getElementById("movieGrid");
+            if (results.length > 0) {
+                grid.innerHTML = results.map(movie => `
+                    <div class="movie-card" onclick="playMovie(${movie.id}, '${movie.title.replace(/'/g, "\\'")}', '${movie.synopsis.replace(/'/g, "\\'")}')">
+                        <div class="movie-poster">${movie.icon}</div>
+                        <div class="movie-info">
+                            <div class="movie-title">${movie.title}</div>
+                            <div class="movie-year">${movie.year}</div>
+                            <div class="movie-rating">⭐ ${movie.rating}/10</div>
+                        </div>
+                    </div>
+                `).join("");
+            } else {
+                grid.innerHTML = '<p style="color:#888; text-align:center; grid-column:1/-1;">😢 Film tidak ditemukan</p>';
+            }
+        }
+
+        // PLAY MOVIE
+        function playMovie(id, title, synopsis) {
+            const allMovies = [
+                ...movies.popular, ...movies.action, ...movies.comedy,
+                ...movies.horror, ...movies.scifi, ...movies.drama,
+                ...movies.indonesia, ...movies.anime
+            ];
+            currentMovie = allMovies.find(m => m.id === id);
+            if (!currentMovie) return;
+
+            document.getElementById("modalTitle").innerText = title;
+            document.getElementById("modalSynopsis").innerHTML = `<strong>📝 Sinopsis:</strong> ${synopsis}`;
+            
+            const altEmbeds = [
+                { name: "🎬 vidsrc (Default)", url: `https://vidsrc.me/embed/movie/${id}` },
+                { name: "🎬 embed.su", url: `https://embed.su/embed/movie/${id}` },
+                { name: "🎬 2embed", url: `https://2embed.org/embed/movie/${id}` }
+            ];
+            
+            document.getElementById("movieIframe").src = altEmbeds[0].url;
+            
+            document.getElementById("altSources").innerHTML = altEmbeds.map(alt => `
+                <button class="alt-btn" onclick="changeSource('${alt.url}', '${alt.name}')">${alt.name}</button>
+            `).join("");
+            
+            document.getElementById("movieModal").classList.add("active");
+        }
+
+        function changeSource(url, name) {
+            document.getElementById("movieIframe").src = url;
+            document.getElementById("modalSynopsis").innerHTML = `<strong>🎬 Mengganti ke ${name}...</strong>`;
+            setTimeout(() => {
+                if (currentMovie) {
+                    document.getElementById("modalSynopsis").innerHTML = `<strong>📝 Sinopsis:</strong> ${currentMovie.synopsis}`;
+                }
+            }, 1000);
+        }
+
+        function closeModal() {
+            document.getElementById("movieModal").classList.remove("active");
+            document.getElementById("movieIframe").src = "";
+        }
+
+        // INIT - LANGSUNG JALAN TANPA LOADING
+        renderCategories();
+        renderMovies("popular");
+
+        // EVENT LISTENERS
+        document.getElementById("searchInput").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") searchMovies();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") closeModal();
         });
     </script>
 </body>
-
-  </html>
+    </html>
